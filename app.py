@@ -1,7 +1,7 @@
 from fasthtml.common import *
 from db import *
 
-app, rt = fast_app(live=True)
+app, rt = fast_app('StarField.db', live=True)
 grocery_list_items = []
 def add_item_to_grocery_list(name):
     """Add item to grocery list if it doesn't exist"""
@@ -44,34 +44,13 @@ def get():
 
     return Titled("StarField Grocery list",Card(Div(search, suggestions)),Card(lists))
 
-@rt('/', methods=['POST'])
-async def post(request):
-    #print(dir(request))
-        # Await the form method to retrieve the form data
-    form_data = await request.form()
-    
-    # Access the form data like a dictionary
-    query = form_data['query'] 
-    #print("Captured Query:", query)
-    if query:
-        results = search_names(query)
-        results_html = Ul(*
-        [Li(A(name,hx_get=f'/add_to_grocery_list?name={name}', hx_target="#GroceryList", hx_swap="beforeend" 
-            )) for name in results],
-        style="list-style-type: none; padding: 0; margin: 0;")
-        return results_html,mk_input()  # Return only the list part
-    else:
-        return "No query provided.",mk_input()
-
 @rt('/suggest', methods=['GET'])
 async def suggest(request):
     query = request.query_params.get('query')
-    print("Captured Query:", query)
-    
+    #print("Captured Query:", query)
     if query:
-        # Dummy search function; replace with your actual search logic
         results = search_names(query)
-        results_html = results_html = Ul(
+        results_html = Ul(
             *[Li(A(name, hx_get=f'/add_to_grocery_list?name={name}', hx_target="#GroceryList", hx_swap="beforeend"), 
                 style="list-style-type: none; padding: 0; margin: 0;") for name in results], 
             style="list-style-type: none; padding: 0; margin: 0;"
