@@ -17,33 +17,68 @@ def remove_item_from_grocery_list(name):
     """Remove item from grocery list if it exists"""
     if name in grocery_list_items:
         del grocery_list_items[name]
+        
+def create_tree(item, requirements):
+    if not requirements:
+        return Li(item)
+    return Li(
+        item,
+        Ul(*[create_tree(sub_item, fullRawRequire(sub_item)) for sub_item in requirements])
+    )
+@rt('/tree_structure', methods = 'GET')
+async def tree_structure():
+    items = await get_grocery_list_items()
+    tree_structure = Ul(
+        *[Li(create_tree(item, fullRawRequire(item))) for item in items]
+    )
+    return Div(tree_structure, cls="container")
 
 def mk_input(): return Input(type='text', placeholder='Search', id='query', hx_swap_oob='true', hx_get='/suggest', hx_trigger='keyup changed delay:500ms', hx_target='#suggestions')
-
 @rt("/")
-def get():
-    #groceries.insert(Grocery(title='Toothpicks',quantity = 1))
+async def get():
     search = Form(
         Group(
             Div(
                 mk_input(),
-                Div(id='suggestions', style="position: relative;"),  # Positioning for suggestions
-                style="position: relative;"  # To ensure suggestions are positioned correctly
+                Div(id='suggestions', style="position: relative;"),
+                style="position: relative;"
             ),
         ),
         hx_post='/', target_id='results'
     )
+
+    items = await get_grocery_list_items()
+    list_elements = [Li(
+        Div(
+            Div(name, style="flex: 1; padding-right: 10px; text-align: right;"),
+            Input(
+                type='number', value=str(quantity), min='0', name=f'quantity-{name}', style="width: 60px;",
+                hx_post=f'/update_quantity?name={name}', hx_trigger='change',
+                hx_target=f'#item-{name.replace(" ", "-")}', hx_swap='outerHTML'
+            ),
+            style="display: flex; justify-content: space-between; align-items: center; width: 100%;"
+        ),
+        id=f'item-{name.replace(" ", "-")}',
+        style="list-style-type: none; padding: 0; margin: 0;"
+    ) for name, quantity in items.items()]
+
     lists = Div(
         Div(
-            Ul(style="list-style-type: none; padding: 0; margin: 0;"), 
+            Ul(*list_elements, style="list-style-type: none; padding: 0; margin: 0;"), 
             style="float: left; width: 50%;",
-            id = 'GroceryList'
+            id='GroceryList'
         ),
         style="width: 50%; overflow: hidden;"
     )
 
-    return Titled("StarField Grocery list",Card(Div(search)),Card(lists))
+    # Placeholder div for tree structure
+    tree_div = Div(id='tree-structure', hx_get='/tree_structure', hx_trigger='load')
 
+    return Titled("StarField Grocery List"), Div(
+               Card(Div(search)),
+               Card(lists),
+               tree_div
+           )
 @rt('/suggest', methods=['GET'])
 async def suggest(request):
     query = request.query_params.get('query')
@@ -59,6 +94,7 @@ async def suggest(request):
     else:
         return ""
 
+
 @rt('/add_to_grocery_list', methods=['GET'])
 async def add_to_grocery_list(request):
     name = request.query_params.get('name')
@@ -70,16 +106,17 @@ async def add_to_grocery_list(request):
                 Div(
                     Div(name, style="flex: 1; padding-right: 10px; text-align: right;"),
                     Input(
-                        type='number', value='1', min='0', name=f'quantity-{name}', style="width: 60px;", 
-                        hx_post=f'/update_quantity?name={name}', hx_trigger='change', 
+                        type='number', value='1', min='0', name=f'quantity-{name}', style="width: 60px;",
+                        hx_post=f'/update_quantity?name={name}', hx_trigger='change',
                         hx_target=f'#item-{name.replace(" ", "-")}', hx_swap='outerHTML'
-                    ),  # Set a fixed width for the input field
+                    ),
                     style="display: flex; justify-content: space-between; align-items: center; width: 100%;"
                 ),
                 id=f'item-{name.replace(" ", "-")}',
-                style="list-style-type: none; padding: 0; margin: 0;"  # Remove bullet points from the list item
+                style="list-style-type: none; padding: 0; margin: 0;"
             )
-            return list_item
+            # Update the tree structure after adding an item
+            return list_item, Script("htmx.ajax('GET', '/tree_structure', {target: '#tree-structure'})")
         return None
     else:
         return "No item selected."
@@ -92,21 +129,25 @@ async def update_quantity(request):
 
     if quantity < 1:
         remove_item_from_grocery_list(name)
-        return ""
+        return "", Script("htmx.ajax('GET', '/tree_structure', {target: '#tree-structure'})")
     else:
         grocery_list_items[name] = quantity
-        print(grocery_list_items)
         list_item = Li(
             Div(
                 Div(name, style="flex: 1; padding-right: 10px; text-align: right;"),
                 Input(
-                    type='number', value=str(quantity), min='0', name=f'quantity-{name}', style="width: 60px;", 
-                    hx_post=f'/update_quantity?name={name}', hx_trigger='change', 
+                    type='number', value=str(quantity), min='0', name=f'quantity-{name}', style="width: 60px;",
+                    hx_post=f'/update_quantity?name={name}', hx_trigger='change',
                     hx_target=f'#item-{name.replace(" ", "-")}', hx_swap='outerHTML'
-                ),  # Maintain fixed width for the input field
+                ),
                 style="display: flex; justify-content: space-between; align-items: center; width: 100%;"
             ),
             id=f'item-{name.replace(" ", "-")}',
-            style="list-style-type: none; padding: 0; margin: 0;"  # Remove bullet points from the list item
+            style="list-style-type: none; padding: 0; margin: 0;"
         )
-        return list_item
+        # Update the tree structure after updating an item
+        return list_item, Script("htmx.ajax('GET', '/tree_structure', {target: '#tree-structure'})")
+
+@rt('/trigger-refresh', methods=['GET'])
+async def trigger_refresh():
+    return Script("htmx.ajax('GET', '/tree_structure', { target: '#tree-structure' })")

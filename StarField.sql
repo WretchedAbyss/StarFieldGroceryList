@@ -194,7 +194,7 @@ INSERT INTO recipes (
 ('Supercooled Magnet', 'compound', 1, 'Isotopic Coolant', 1, 'Isocentered Magnet', 3, 'Neodymium', NULL, NULL),
 ('Sterile Nanotubes', 'compound', 2, 'Vanadium', 1, 'Molecular Sieve', 2, 'Solvent', NULL, NULL),
 ('Semimetal Wafer', 'compound', 2, 'Antimony', 1, 'Zero Wire', 2, 'Gold', NULL, NULL),
-('Positron Battery', 'compound', 1, 'Tau Gauge Rheostat', 2, 'Antimony', 2, 'Vanadium', NULL, NULL),
+('Positron Battery', 'compound', 1, 'Tau Grade Rheostat', 2, 'Antimony', 2, 'Vanadium', NULL, NULL),
 ('Paramagnon Conductor', 'compound', 1, 'Neodymium', 3, 'Zero Wire', 1, 'Gold', NULL, NULL),
 ('Nuclear Fuel Rod', 'compound', 3, 'Uranium', 2, 'Solvent', 1, 'Semimetal Wafer', NULL, NULL),
 ('Molecular Sieve', 'compound', 2, 'Ionic Liquids', 2, 'Membrane', 1, 'Mag Pressure Tank', NULL, NULL),
