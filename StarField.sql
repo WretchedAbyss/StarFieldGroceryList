@@ -150,7 +150,7 @@ INSERT INTO manufactured (Name, Weight, Cost, Rarity, RefID) VALUES
 ('Rothicite Magnet', 4.60, 295, 4, '0x00203EB2'),
 ('Semimetal Wafer', 3.50, 149, 2, '0x00246B6D'),
 ('Sterile Nanotubes', 3.00, 130, 3, '0x00246B6C'),
-('Substrate Molecule Sieve', 4.50, 274, 4, '0x00202782'),
+('Substrate Molecular Sieve', 4.50, 274, 4, '0x00202782'),
 ('Supercooled Magnet', 3.20, 111, 2, '0x00246B69'),
 ('Tasine Superconductor', 5.00, 299, 4, '0x00203EAF'),
 ('Tau Grade Rheostat', 2.60, 82, 1, '0x00246B68'),
