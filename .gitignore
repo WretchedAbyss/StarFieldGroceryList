@@ -5,3 +5,5 @@
 utils/__pycache__/starcal.cpython-312.pyc
 .gitignore
 .gitignore
+StarField.db-wal
+StarField.db-shm

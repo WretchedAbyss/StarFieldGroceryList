@@ -208,3 +208,26 @@ INSERT INTO recipes (
 ('Power Circuit', 'Multiplex', 1, 'Positron Battery', 2, 'Polymer', 4, 'Palladium', 1, 'Paramagnon Conductor'),
 ('Microsecond Regulator', 'Multiplex', 2, 'Lithium', 4, 'Europium', 1, 'Supercooled Magnet', 1, 'Tau Grade Rheostat'),
 ('Indicite Wafer', 'Multiplex', 1, 'Semimetal Wafer', 4, 'Indicite', 2, 'Caesium', 2, 'Solvent');
+CREATE TABLE fabricators (
+    Output VARCHAR(50),
+    Fabricator VARCHAR(20),
+    Requirement1_Num INTEGER,
+    Requirement1_Desc VARCHAR(50),
+    Requirement2_Num INTEGER,
+    Requirement2_Desc VARCHAR(50),
+    Requirement3_Num INTEGER,
+    Requirement3_Desc VARCHAR(50),
+    Requirement4_Num INTEGER,
+    Requirement4_Desc VARCHAR(50)
+);
+
+INSERT INTO fabricators (
+    Output, Fabricator,
+    Requirement1_Num, Requirement1_Desc,
+    Requirement2_Num, Requirement2_Desc,
+    Requirement3_Num, Requirement3_Desc,
+    Requirement4_Num, Requirement4_Desc
+) VALUES
+('Simple Fabricator', '⚙️', 4, 'Tungsten', 2, 'Sealant', 3, 'Zero Wire', 8, 'Aluminum'),
+('Compound Fabricator', '🤖', 4, 'Adhesive', 8, 'Tungsten', 2, 'Isotopic Coolant', 5, 'Zero Wire'),
+('Multiplex Fabricator', '🦾', 8, 'Titanium', 8, 'Polymer', 6, 'Lubricant', 3, 'Positron Battery');

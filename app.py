@@ -22,42 +22,6 @@ def list_depth(lst):
     if not isinstance(lst, list) or not lst:
         return 0
     return 1 + max(list_depth(item) for item in lst)
-# Recursive function to build the tree for an item
-def create_tree(item, multiplier=1):
-    tree_items = []
-
-    # Get the different types of requirements
-    organic = organicRequire(item)
-    inorganic = inorganicRequire(item)
-    manufactured = manufacturedRequire(item)
-
-    # Add organic requirements with green background on text
-    if organic:
-        organic_list = Ul(*[Li(Span(f"{req} (x{qty * multiplier})", style="background-color: green; padding: 2px; border-radius: 3px;")) for req, qty in organic.items()])
-        tree_items.append(organic_list)
-
-    # Add inorganic requirements with red background on text
-    if inorganic:
-        inorganic_list = Ul(*[Li(Span(f"{req} (x{qty * multiplier})", style="background-color: red; padding: 2px; border-radius: 3px;")) for req, qty in inorganic.items()])
-        tree_items.append(inorganic_list)
-
-    # Add manufactured requirements recursively with blue background on text
-    if manufactured:
-        manufactured_items = []
-        for req, qty in manufactured.items():
-            sub_tree = create_tree(req, multiplier * qty)
-            if sub_tree:
-                manufactured_items.append(Li(Span(f"{req} (x{qty * multiplier})", style="background-color: blue; padding: 2px; border-radius: 3px;"), Ul(*sub_tree)))
-            else:
-                manufactured_items.append(Li(Span(f"{req} (x{qty * multiplier})", style="background-color: blue; padding: 2px; border-radius: 3px;")))
-
-        if manufactured_items:
-            tree_items.append(Ul(*manufactured_items))
-
-    # Sort the tree items by the depth of their sublists
-    tree_items = sorted(tree_items, key=list_depth)
-
-    return tree_items if tree_items else None
 
 # Route for rendering the tree structure
 @rt('/tree_structure', methods=['GET'])
@@ -66,13 +30,137 @@ async def tree_structure():
     if not items:
         return ""
 
-    # Build the tree structure for all items in the grocery list, passing the quantity as a multiplier
-    tree_structure = Ul(
-        *[Li(f"{item} (x{qty})", Ul(*create_tree(item, qty) or [])) for item, qty in items.items()]
-    )
-    return Div(tree_structure, cls="container")
+    # Recursive function to build the tree for an item
+    def create_tree(item, multiplier=1):
+        tree_items = []
 
-def mk_input(): return Input(type='text', placeholder='Search', id='query', hx_swap_oob='true', hx_get='/suggest', hx_trigger='keyup changed delay:500ms', hx_target='#suggestions')
+        # Get the different types of requirements
+        organic = organicRequire(item)
+        inorganic = inorganicRequire(item)
+        manufactured = manufacturedRequire(item)
+
+        # Add organic requirements with green background on text
+        if organic:
+            organic_list = [Li(Span(f"{req} (x{qty * multiplier})", cls="organic")) for req, qty in organic.items()]
+            tree_items.extend(organic_list)
+
+        # Add inorganic requirements with red background on text
+        if inorganic:
+            inorganic_list = [Li(Span(f"{req} (x{qty * multiplier})", cls="inorganic")) for req, qty in inorganic.items()]
+            tree_items.extend(inorganic_list)
+
+        # Add manufactured requirements recursively with blue background on text
+        if manufactured:
+            manufactured_items = []
+            for req, qty in manufactured.items():
+                sub_tree = create_tree(req, multiplier * qty)
+                if sub_tree:
+                    manufactured_items.append(
+                        Details(Summary(Span(f"{req} (x{qty * multiplier})", cls="manufactured")), Ul(*sub_tree), open=True, cls="manufactured")
+                    )
+                else:
+                    manufactured_items.append(Li(Span(f"{req} (x{qty * multiplier})", cls="manufactured")))
+            
+            if manufactured_items:
+                tree_items.extend(manufactured_items)
+
+        return tree_items if tree_items else []
+
+    # Build the tree structure for all items in the grocery list
+    tree_structure = [
+        Details(Summary(Span(f"{item} (x{qty})", cls="main-item")), Ul(*create_tree(item, qty) or []), open=True)
+        for item, qty in items.items()
+    ]
+
+    # Custom CSS for styling the tree
+    tree_style = Style("""
+        .Tree ul summary{
+            cursor: pointer;
+            line-height:2em;
+        }
+        .Tree ul summary::marker{
+            display:none;
+        }
+        .Tree summary::-webkit-details-marker{
+            display:none;
+        }
+        .Tree ul li{
+            position:relative;
+            list-style-type: none;
+        }
+        .Tree li {
+            margin: 0;
+            padding: 0 0 0 0px;
+            list-style-type: none;
+            line-height: 1.5;
+            position: relative;
+        }
+        .Tree ul li::before{
+            position: absolute;
+            left:-10px;
+            top:0px;
+            border-left:2px solid white;
+            border-bottom:2px solid white;
+            content:"";
+            width:8px;
+            height:1em;
+        }
+        .Tree ul li::after{
+            position: absolute;
+            left:-10px;
+            bottom:0px;
+            border-left:2px solid white;
+            content:"";
+            width:8px;
+            height:1em;
+        }
+        .Tree ul li:last-child::after{
+            display:none;
+        }
+        .Tree > ul > li:first-child::before,
+        .Tree > ul > li:first-child::after {
+            content: none;
+            display: none;
+        }
+        
+        .Tree details summary {
+            cursor: pointer;
+            margin: 0 0 0 0;
+        }
+        .Tree .manufactured details summary::before {
+            position: relative;
+            display:block;
+            left:-10px;
+            top:18px;
+            border-left:2px solid white;
+            border-bottom:2px solid white;
+            content:"";
+            width:8px;
+            height:1em;
+            
+        }
+        .Tree details summary::after {
+            display:none;
+        }
+        .Tree .main-item {
+            font-weight: bold;
+        }
+        .Tree .organic {
+            background-color: lightgreen !important;
+            border-radius: 3px;
+        }
+        .Tree .inorganic {
+            background-color: lightcoral !important;
+            border-radius: 3px;
+        }
+        .Tree .manufactured span{
+            background-color: lightblue;
+            border-radius: 3px;
+            position: relative;
+        }
+    """)
+
+    return Div(tree_style, Div(Ul(*tree_structure), cls="Tree"), cls="container")
 
 @rt("/")
 async def get():
@@ -123,6 +211,7 @@ async def get():
                tree_div
            )
 
+def mk_input(): return Input(type='text', placeholder='Search', id='query', hx_swap_oob='true', hx_get='/suggest', hx_trigger='keyup changed delay:500ms', hx_target='#suggestions')
 @rt('/suggest', methods=['GET'])
 async def suggest(request):
     query = request.query_params.get('query')
