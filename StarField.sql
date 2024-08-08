@@ -231,3 +231,33 @@ INSERT INTO fabricators (
 ('Simple Fabricator', '⚙️', 4, 'Tungsten', 2, 'Sealant', 3, 'Zero Wire', 8, 'Aluminum'),
 ('Compound Fabricator', '🤖', 4, 'Adhesive', 8, 'Tungsten', 2, 'Isotopic Coolant', 5, 'Zero Wire'),
 ('Multiplex Fabricator', '🦾', 8, 'Titanium', 8, 'Polymer', 6, 'Lubricant', 3, 'Positron Battery');
+CREATE TABLE extractors (
+    Output VARCHAR(50),
+    Power INT,
+    State VARCHAR(10),
+    Requirement1_Num INTEGER,
+    Requirement1_Desc VARCHAR(50),
+    Requirement2_Num INTEGER,
+    Requirement2_Desc VARCHAR(50),
+    Requirement3_Num INTEGER,
+    Requirement3_Desc VARCHAR(50),
+    Requirement4_Num INTEGER,
+    Requirement4_Desc VARCHAR(50)
+);
+
+INSERT INTO extractors (
+    Output, Power, State,
+    Requirement1_Num, Requirement1_Desc,
+    Requirement2_Num, Requirement2_Desc,
+    Requirement3_Num, Requirement3_Desc,
+    Requirement4_Num, Requirement4_Desc
+) VALUES
+('Gas Extractor', 5, 'gas', 3, 'Copper', 4, 'Nickel', 5, 'Aluminum', NULL, NULL),
+('Gas Extractor Commercial', 10, 'gas', 4, 'Vanadium', 3, 'Adaptive Frame', 2, 'Reactive Gauge', 2, 'Molecular Sieve'),
+('Gas Extractor Industrial', 20, 'gas', 3, 'Reactive Gauge', 5, 'Adaptive Frame', 2, 'Substrate Molecular Sieve', 6, 'Vanadium'),
+('Liquid Extractor', 5, 'Liquid', 4, 'Nickel', 3, 'Iron', 5, 'Aluminum', NULL, NULL),
+('Liquid Extractor Commercial', 10, 'Liquid', 4, 'Titanium', 3, 'Austenitic', 3, 'Adaptive Frame', 4, 'Molecular Sieve'),
+('Liquid Extractor Industrial', 20, 'Liquid', 6, 'Titanium', 5, 'Adaptive Frame', 2, 'Substrate Molecular Sieve', 3, 'Veryl-Treated Manifold'),
+('Solid Extractor', 5, 'solid', 2, 'Tungsten', 4, 'Aluminum', 5, 'Iron', NULL, NULL),
+('Solid Extractor Commercial', 10, 'solid', 1, 'Drilling Rig', 2, 'Isotopic Coolant', 3, 'Adaptive Frame', 4, 'Tungsten'),
+('Solid Extractor Industrial', 20, 'solid', 4, 'Isotopic Coolant', 1, 'Aldumite Drilling Rig', 6, 'Tungsten', 5, 'Adaptive Frame');
